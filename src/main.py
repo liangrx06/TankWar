@@ -2,7 +2,7 @@ import pygame
 import sys
 import traceback
 
-from wall import Wall
+from wall import Wall, Home
 from tank import Tank
 from bullet import Bullet
 from food import Food
@@ -23,9 +23,6 @@ class TankWar():
 
         self.clock = pygame.time.Clock()
 
-        self.enemyCouldMove = True
-        self.homeSurvive = True
-
         self.init_images()
 
         self.init_sounds()
@@ -36,10 +33,15 @@ class TankWar():
 
         self.init_bgmap()
 
+        self.init_home()
+
         self.init_food()
 
         self.init_tank(side=1)
         self.init_tank(side=2)
+
+        self.enemyCouldMove = True
+        self.game_active = True
 
     def init_groups(self):
         # 定义精灵组:我方坦克，敌方坦克，敌方子弹
@@ -59,6 +61,10 @@ class TankWar():
         # 创建地图
         self.bgMap = Wall()
         self.objectGroups = [self.playerGroup, self.enemyGroup, self.bgMap.brickGroup, self.bgMap.ironGroup]
+
+    def init_home(self):
+        # 创建家
+        self.home = Home()
 
     def init_food(self):
         # 创建食物/道具 但不显示
@@ -86,8 +92,6 @@ class TankWar():
 
     def init_images(self):
         self.background_image = pygame.image.load(r"..\image\background.png")
-        self.home_image = pygame.image.load(r"..\image\home.png")
-        self.home_destroyed_image = pygame.image.load(r"..\image\home_destroyed.png")
 
     def init_sounds(self):
         self.start_sound = pygame.mixer.Sound(r"..\music\start.wav")
@@ -106,13 +110,15 @@ class TankWar():
     def run_game(self):
         while True:
             self._check_events()
-            self._check_keypressed()
-            # if self.game_stats.game_active:
-            #     self.ship.update()
-            #     self._update_bullets()
-            #     self._update_aliens()
-            self._update_screen()
+            if self._check_game_active():
+                self._check_keypressed()
+            self._update_game()
             self.clock.tick(60)
+
+    def _check_game_active(self):
+        if self.home.life == False or (self.myTank[0].life == 0 and self.myTank[1].life == 0):
+            self.game_active = False
+        return self.game_active
 
     def _check_events(self):
         for event in pygame.event.get():
@@ -120,28 +126,29 @@ class TankWar():
                 pygame.quit()
                 sys.exit()
 
-            if event.type == MY_BULLET_COOLING_EVENT:  # 我方子弹冷却事件
-                for tank in self.playerGroup:
-                    tank.bulletNotCooling = True
+            if self.game_active:
+                if event.type == MY_BULLET_COOLING_EVENT:  # 我方子弹冷却事件
+                    for tank in self.playerGroup:
+                        tank.bulletNotCooling = True
 
-            if event.type == ENEMY_BULLET_COOLING_EVENT:  # 敌方子弹冷却事件
-                for each in self.enemyGroup:
-                    each.bulletNotCooling = True
-                    if not each.bullet in self.bulletGroups[1]:
-                        each.shoot()
+                if event.type == ENEMY_BULLET_COOLING_EVENT:  # 敌方子弹冷却事件
+                    for each in self.enemyGroup:
+                        each.bulletNotCooling = True
+                        if not each.bullet in self.bulletGroups[1]:
+                            each.shoot()
 
-            if event.type == ENEMY_COULD_MOVE_EVENT:  # 敌方坦克静止事件
-                self.enemyCouldMove = True
+                if event.type == ENEMY_COULD_MOVE_EVENT:  # 敌方坦克静止事件
+                    self.enemyCouldMove = True
 
-            if event.type == HOMEWALL_BRICK_EVENT:  # 家墙恢复成砖块20000
-                self.bgMap.draw_homewall(1)
+                if event.type == HOMEWALL_BRICK_EVENT:  # 家墙恢复成砖块20000
+                    self.bgMap.draw_homewall(1)
 
-            if event.type == DELAY_EVENT:  # 延迟创建敌方坦克
-                if len(self.enemyGroup) < MAX_ENEMY_NUMBER:
-                    self.init_enemy_tank()
+                if event.type == DELAY_EVENT:  # 延迟创建敌方坦克
+                    if len(self.enemyGroup) < MAX_ENEMY_NUMBER:
+                        self.init_enemy_tank()
 
-            if event.type == pygame.KEYDOWN:
-                self._check_keydown_events(event)
+                if event.type == pygame.KEYDOWN:
+                    self._check_keydown_events(event)
 
     def _check_keydown_events(self, event):
         if DEBUG:
@@ -175,10 +182,6 @@ class TankWar():
                 tank.levelUp()
             if event.key == pygame.K_F12:
                 tank.levelDown()
-
-        if event.key == pygame.K_c and pygame.KMOD_CTRL:
-            pygame.quit()
-            sys.exit()
 
     def _check_keypressed(self):
         # 检查用户的键盘操作
@@ -228,7 +231,7 @@ class TankWar():
         # 创建我方子弹延迟200
         pygame.time.set_timer(MY_BULLET_COOLING_EVENT, 200)
 
-    def _update_screen(self):
+    def _update_game(self):
         self._update_bgmap()
 
         self._update_food()
@@ -249,10 +252,10 @@ class TankWar():
         for each in self.bgMap.ironGroup:
             self.screen.blit(each.image, each.rect)
         # 画home
-        if self.homeSurvive:
-            self.screen.blit(self.home_image, (3 + 12 * 24, 3 + 24 * 24))
+        if self.home.life:
+            self.screen.blit(self.home.image, self.home.rect)
         else:
-            self.screen.blit(self.home_destroyed_image, (3 + 12 * 24, 3 + 24 * 24))
+            self.screen.blit(self.home.image_destroyed, self.home.rect)
 
     def _update_tanks(self):
         # 画所有坦克
@@ -291,6 +294,12 @@ class TankWar():
                 if pygame.sprite.spritecollide(bullet, self.bgMap.ironGroup, bullet.strong, None):
                     bulletGroup.remove(bullet)
 
+    def _check_bullets_collide_home(self):
+        for i in range(2):
+            bulletGroup = self.bulletGroups[i]
+            if pygame.sprite.spritecollide(self.home, self.bulletGroups[i], True, None):
+                self.home.life = False
+
     def _check_bullets_collide_bullets(self):
         pygame.sprite.groupcollide(self.bulletGroups[0], self.bulletGroups[1], True, True)
 
@@ -319,6 +328,7 @@ class TankWar():
                 bullet.move()
         self._check_bullets_beyond_screen()
         self._check_bullets_collide_wall()
+        self._check_bullets_collide_home()
         self._check_bullets_collide_bullets()
         self._check_bullets_collide_tanks()
 

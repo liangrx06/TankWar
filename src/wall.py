@@ -19,6 +19,21 @@ class Iron(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
 
 
+class Home(pygame.sprite.Sprite):
+    def __init__(self):
+        pygame.sprite.Sprite.__init__(self)
+
+        homeImage = r"..\image\home.png"
+        home1Image = r"..\image\home1.png"
+        homeDestroyedImage = r"..\image\home_destroyed.png"
+        self.image = pygame.image.load(homeImage)
+        self.image_destroyed = pygame.image.load(homeDestroyedImage)
+        self.rect = self.image.get_rect()
+        self.rect.left, self.rect.top = (3 + 12 * 24, 3 + 24 * 24)
+
+        self.life = True
+
+
 class Wall():
     def __init__(self):
         self.homewallGroup  = pygame.sprite.Group()
