@@ -2,7 +2,10 @@ import pygame
 import random
 
 class Food(pygame.sprite.Sprite):
-    def __init__(self):
+    def __init__(self, game):
+        super().__init__()
+
+        self.game = game
         
         self.food_boom    = pygame.image.load(r"..\image\food_boom.png").convert_alpha()
         self.food_clock   = pygame.image.load(r"..\image\food_clock.png").convert_alpha()

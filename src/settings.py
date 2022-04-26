@@ -16,6 +16,6 @@ ENEMY_COULD_MOVE_EVENT = pygame.constants.USEREVENT + 3
 # 家墙恢复成砖块20000
 HOMEWALL_BRICK_EVENT = pygame.constants.USEREVENT + 4
 
-MAX_ENEMY_NUMBER = 3
+MAX_ENEMY_NUMBER = 5
 
 DIRS = ((0,-1),(0,1),(-1,0),(1,0)) #移动方向：上下左右

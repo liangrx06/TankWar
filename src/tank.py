@@ -221,13 +221,14 @@ class Tank(pygame.sprite.Sprite):
             self.protect_time -= 1
             screen.blit(self.protect[self.protect_time // 10 % 2], self.rect)
 
-    def draw_living(self, screen):
-        if self.moving or self.side == 2:
-            screen.blit(self.images[self.time_tick // 5 % 2], (self.rect.left, self.rect.top))
-        else:
-            screen.blit(self.images[0], (self.rect.left, self.rect.top))
-        if self.check_protect():
-            self.protect_flash(screen)
+    def draw_tank(self, screen):
+        if self.life:
+            if self.moving or self.side == 2:
+                screen.blit(self.images[self.time_tick // 5 % 2], (self.rect.left, self.rect.top))
+            else:
+                screen.blit(self.images[0], (self.rect.left, self.rect.top))
+            if self.check_protect():
+                self.protect_flash(screen)
 
     def do_time_tick(self):
         self.time_tick += 1

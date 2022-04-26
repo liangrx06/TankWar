@@ -20,8 +20,10 @@ class Iron(pygame.sprite.Sprite):
 
 
 class Home(pygame.sprite.Sprite):
-    def __init__(self):
+    def __init__(self, game):
         pygame.sprite.Sprite.__init__(self)
+
+        self.game = game
 
         homeImage = r"..\image\home.png"
         home1Image = r"..\image\home1.png"
@@ -35,7 +37,9 @@ class Home(pygame.sprite.Sprite):
 
 
 class Wall():
-    def __init__(self):
+    def __init__(self, game):
+        self.game = game
+
         self.homewallGroup  = pygame.sprite.Group()
         self.brickGroup = pygame.sprite.Group()
         self.ironGroup  = pygame.sprite.Group()
