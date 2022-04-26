@@ -62,7 +62,6 @@ class TankWar():
     def init_bgmap(self):
         # 创建地图
         self.bgMap = Wall(self)
-        self.objectGroups = [self.playerGroup, self.enemyGroup, self.bgMap.brickGroup, self.bgMap.ironGroup]
 
         self.init_home()
 
@@ -144,7 +143,7 @@ class TankWar():
                 if event.type == ENEMY_BULLET_COOLING_EVENT:  # 敌方子弹冷却事件
                     for each in self.enemyGroup:
                         each.bulletNotCooling = True
-                        if self.enemyCouldMove and each.bullet in self.bulletGroups[1]:
+                        if self.enemyCouldMove and (not each.bullet in self.bulletGroups[1]):
                             each.shoot()
 
                 if event.type == ENEMY_COULD_MOVE_EVENT:  # 敌方坦克静止事件
@@ -153,7 +152,7 @@ class TankWar():
                 if event.type == HOMEWALL_BRICK_EVENT:  # 家墙恢复成砖块20000
                     self.bgMap.draw_homewall(1)
 
-                if event.type == DELAY_EVENT:  # 延迟创建敌方坦克
+                if event.type == DELAY_EVENT:  # 定时创建敌方坦克
                     if len(self.enemyGroup) < MAX_ENEMY_NUMBER:
                         self.init_enemy_tank()
 
@@ -225,7 +224,7 @@ class TankWar():
                     tank.moving = True
                     tank.change_dir(dir)
                 if tank.moving:
-                    tank.move(self.objectGroups)
+                    tank.move()
                 if key_pressed[pygame.K_j] and i == 0 or key_pressed[pygame.K_KP0] and i == 1:
                     if not tank.bullet in self.bulletGroups[0] and tank.bulletNotCooling:
                         self.fire_sound.play()
@@ -254,19 +253,13 @@ class TankWar():
                     tank.do_time_tick()
                     if tank.check_living():
                         if tank.side == 2 and self.enemyCouldMove:
-                            tank.move(self.objectGroups)
-
-    def _check_beyond_screen(self, rect):
-        if rect.top < self.rect.top or rect.bottom > self.rect.bottom \
-                or rect.left < self.rect.left or rect.right > self.rect.right:
-            return True
-        return False
+                            tank.move()
 
     def _check_bullets_beyond_screen(self):
         for i in range(2):
             bulletGroup = self.bulletGroups[i]
             for bullet in bulletGroup.copy():
-                if self._check_beyond_screen(bullet.rect):
+                if check_rect_beyond(bullet.rect, self.rect):
                     bulletGroup.remove(bullet)
 
     def _check_bullets_collide_wall(self):

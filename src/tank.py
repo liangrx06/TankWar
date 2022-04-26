@@ -1,5 +1,6 @@
 import pygame
 import random
+from pygame import Rect
 
 from settings import *
 from bullet import Bullet
@@ -18,6 +19,9 @@ class Tank(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
 
         self.game = game
+        self.screen = game.screen
+        self.screen_rect = self.screen.get_rect()
+
         self.side = side # 1表示己方坦克，2表示敌方坦克
         # 参数:坦克种类
         self.kind = kind
@@ -77,11 +81,12 @@ class Tank(pygame.sprite.Sprite):
 
         self.bulletNotCooling = True
 
-        self.rect = pygame.Rect(0, 0, 48, 48)
+        self.appearing_rect = [Rect(3 + 24 * 8, 3 + 24 * 24, 48, 48), Rect(3 + 24 * 8 * 2, 3 + 24 * 24, 48, 48), \
+                              Rect(3, 3, 48, 48), Rect(3 + 24 * 12, 3, 48, 48), Rect(3 + 24 * 12 * 2, 3, 48, 48)]
         if self.side == 1:
-            self.rect.left, self.rect.top = 3 + 24 * 8 * self.kind, 3 + 24 * 24
+            self.rect = self.appearing_rect[self.kind - 1]
         else:
-            self.rect.left, self.rect.top = 3 + self.pos * 12 * 24, 3 + 0 * 24
+            self.rect = self.appearing_rect[self.pos + 2]
 
         # 坦克的四个等级，初始坦克为0级
         self.level = 0
@@ -152,22 +157,6 @@ class Tank(pygame.sprite.Sprite):
         self.bullet.changeLocation(self.dir)
         self.game.bulletGroups[self.side - 1].add(self.bullet)
 
-    def moveUp(self, objectGroups):
-        self.change_dir(0)
-        return self.move(objectGroups)
-
-    def moveDown(self, objectGroups):
-        self.change_dir(1)
-        return self.move(objectGroups)
-
-    def moveLeft(self, objectGroups):
-        self.change_dir(2)
-        return self.move(objectGroups)
-
-    def moveRight(self, objectGroups):
-        self.change_dir(3)
-        return self.move(objectGroups)
-
     def get_image(self, index = 0):
         return self.level_images.subsurface((index * 48, self.dir * 48), (48, 48))
 
@@ -177,22 +166,39 @@ class Tank(pygame.sprite.Sprite):
         self.images = [self.get_image(0), self.get_image(1)]
 
     # 返回True 代表发生碰撞
-    def move(self, objectGroups):
+    def move(self):
+        dir_x, dir_y = DIRS[self.dir]
+        old_rect = self.rect
+        self.rect = self.rect.move(self.speed * dir_x, self.speed * dir_y)
+
+        if check_rect_beyond(self.rect, self.screen_rect):
+            self.rect = old_rect
+            if self.side == 2:  # 随机改变方向
+                self.change_dir(random.choice(range(0, 4)))
+            return False
+
         allGroup = pygame.sprite.Group()
-        for group in objectGroups:
+        for group in self.game.playerGroup, self.game.enemyGroup:
+            for tank in group:
+                if tank.check_living():
+                    allGroup.add(tank)
+        for group in self.game.bgMap.brickGroup, self.game.bgMap.ironGroup:
             for object in group:
                 allGroup.add(object)
         allGroup.remove(self)
-        dir_x, dir_y = DIRS[self.dir]
-        self.rect = self.rect.move(self.speed * dir_x, self.speed * dir_y)
-        if self.rect.top < 3 or self.rect.bottom > 630 - 3 \
-                or self.rect.left < 3 or self.rect.right > 630 - 3 \
-                or pygame.sprite.spritecollide(self, allGroup, False, None):
-            self.rect = self.rect.move(-self.speed * dir_x, -self.speed * dir_y)
-            if self.side == 2: #随机改变方向
-                self.change_dir(random.choice(range(0, 4)))
-            return True
-        return False
+        if pygame.sprite.spritecollide(self, allGroup, False, None):
+            flag_collide = True
+            # for rect in self.appearing_rect:
+            #     if check_rect_inner(self.rect, rect):
+            #         flag_collide = False
+            #         break
+            if flag_collide:
+                self.rect = old_rect
+                if self.side == 2:  # 随机改变方向
+                    self.change_dir(random.choice(range(0, 4)))
+                return False
+        return True
+
 
     def check_life(self):
         return self.life > 0
