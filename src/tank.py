@@ -113,7 +113,7 @@ class Tank(pygame.sprite.Sprite):
             self.bullet.strong = bullet_strongs[self.level]
 
     def init_moving(self):
-        self.moving = 0
+        self.moving = False
         # 运动中的两种图片
         self.level_images = self.all_levels_images[self.level]
         self.change_dir(self.dir)

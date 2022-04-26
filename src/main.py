@@ -30,7 +30,7 @@ class TankWar():
 
         self.init_sounds()
 
-        self.user_loop_events()
+        self._user_loop_events()
 
         self.init_groups()
 
@@ -113,6 +113,131 @@ class TankWar():
             #     self._update_aliens()
             self._update_screen()
             self.clock.tick(60)
+
+    def _check_events(self):
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:  # 退出游戏
+                pygame.quit()
+                sys.exit()
+
+            if event.type == MY_BULLET_COOLING_EVENT:  # 我方子弹冷却事件
+                for tank in self.playerGroup:
+                    tank.bulletNotCooling = True
+
+            if event.type == ENEMY_BULLET_COOLING_EVENT:  # 敌方子弹冷却事件
+                for each in self.enemyGroup:
+                    each.bulletNotCooling = True
+                    if not each.bullet in self.bulletGroups[1]:
+                        each.shoot()
+
+            if event.type == ENEMY_COULD_MOVE_EVENT:  # 敌方坦克静止事件
+                self.enemyCouldMove = True
+
+            if event.type == HOMEWALL_BRICK_EVENT:  # 家墙恢复成砖块20000
+                self.bgMap.draw_homewall(1)
+
+            if event.type == DELAY_EVENT:  # 延迟创建敌方坦克
+                if len(self.enemyGroup) < MAX_ENEMY_NUMBER:
+                    self.init_enemy_tank()
+
+            if event.type == pygame.KEYDOWN:
+                self._check_keydown_events(event)
+
+    def _check_keydown_events(self, event):
+        if DEBUG:
+            tank = self.myTank[0]
+            if event.key == pygame.K_F1:  # 吃炸弹，敌人全毁
+                for each in self.enemyGroup:
+                    if pygame.sprite.spritecollide(each, self.enemyGroup, True, None):
+                        self.bang_sound.play()
+            if event.key == pygame.K_F2:  # 吃定时，敌人静止
+                self.enemyCouldMove = False
+                pygame.time.set_timer(ENEMY_COULD_MOVE_EVENT, 8000, True)
+            if event.key == pygame.K_F3:  # 吃手枪，子弹增强，变身
+                tank.levelTo(2)
+            if event.key == pygame.K_F4:  # 吃家盾，家得到保护，持续20秒
+                self.bgMap.draw_homewall(2)
+                pygame.time.set_timer(HOMEWALL_BRICK_EVENT, 20000, True)
+            if event.key == pygame.K_F5:  # 吃保护帽，坦克无敌
+                tank.set_protect()
+            if event.key == pygame.K_F6:  # 吃五星，坦克升级
+                tank.levelUp()
+            if event.key == pygame.K_F7:  # 吃坦克，坦克生命+1
+                tank.life += 1
+
+            if event.key == pygame.K_F8:
+                tank.print()
+            if event.key == pygame.K_F9:
+                self.set_sounds_volume(self.all_sounds, 0)
+            if event.key == pygame.K_F10:
+                self.set_sounds_volume(self.all_sounds, 1)
+            if event.key == pygame.K_F11:
+                tank.levelUp()
+            if event.key == pygame.K_F12:
+                tank.levelDown()
+
+        if event.key == pygame.K_c and pygame.KMOD_CTRL:
+            pygame.quit()
+            sys.exit()
+
+    def _check_keypressed(self):
+        # 检查用户的键盘操作
+        key_pressed = pygame.key.get_pressed()
+        for i in range(2):
+            tank = self.myTank[i]
+            if tank.check_living() > 0:
+                if (tank.rect.x - 3) % 24 == 0 and (tank.rect.y - 3) % 24 == 0:
+                    tank.moving = False
+                dir = -1
+                if not tank.moving:
+                    if i == 0:
+                        if key_pressed[pygame.K_w]:
+                            dir = 0
+                        if key_pressed[pygame.K_s]:
+                            dir = 1
+                        if key_pressed[pygame.K_a]:
+                            dir = 2
+                        if key_pressed[pygame.K_d]:
+                            dir = 3
+                    else:
+                        if key_pressed[pygame.K_UP]:
+                            dir = 0
+                        if key_pressed[pygame.K_DOWN]:
+                            dir = 1
+                        if key_pressed[pygame.K_LEFT]:
+                            dir = 2
+                        if key_pressed[pygame.K_RIGHT]:
+                            dir = 3
+                if dir >= 0:
+                    tank.moving = True
+                    tank.change_dir(dir)
+                if tank.moving:
+                    tank.move(self.objectGroups)
+                if key_pressed[pygame.K_j] and i == 0 or key_pressed[pygame.K_KP0] and i == 1:
+                    if not tank.bullet in self.bulletGroups[0] and tank.bulletNotCooling:
+                        self.fire_sound.play()
+                        tank.shoot()
+                        tank.bulletNotCooling = False
+
+    # 自定义事件（定时循环）
+    def _user_loop_events(self):
+        # 创建敌方坦克延迟200
+        pygame.time.set_timer(DELAY_EVENT, 200)
+        # 创建敌方子弹延迟1000
+        pygame.time.set_timer(ENEMY_BULLET_COOLING_EVENT, 1000)
+        # 创建我方子弹延迟200
+        pygame.time.set_timer(MY_BULLET_COOLING_EVENT, 200)
+
+    def _update_screen(self):
+        self._update_bgmap()
+
+        self._update_food()
+
+        self._update_tanks()
+
+        self._update_bullets()
+
+        pygame.display.flip()
 
     def _update_bgmap(self):
         # 画背景
@@ -224,142 +349,6 @@ class TankWar():
                         tank.levelUp()
                     if self.food.kind == 7:  # 吃坦克，坦克生命+1
                         tank.life += 1
-
-    def _update_screen(self):
-        self._update_bgmap()
-
-        self._update_food()
-
-        self._update_tanks()
-
-        self._update_bullets()
-
-        pygame.display.flip()
-
-    def _check_events(self):
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:  # 退出游戏
-                pygame.quit()
-                sys.exit()
-
-            if event.type == MY_BULLET_COOLING_EVENT:  # 我方子弹冷却事件
-                for tank in self.playerGroup:
-                    tank.bulletNotCooling = True
-
-            if event.type == ENEMY_BULLET_COOLING_EVENT:  # 敌方子弹冷却事件
-                for each in self.enemyGroup:
-                    each.bulletNotCooling = True
-                    if not each.bullet in self.bulletGroups[1]:
-                        each.shoot()
-
-            if event.type == ENEMY_COULD_MOVE_EVENT:  # 敌方坦克静止事件
-                self.enemyCouldMove = True
-
-            if event.type == HOMEWALL_BRICK_EVENT:  # 家墙恢复成砖块20000
-                self.bgMap.draw_homewall(1)
-
-            if event.type == DELAY_EVENT:  # 延迟创建敌方坦克
-                if len(self.enemyGroup) < MAX_ENEMY_NUMBER:
-                    self.init_enemy_tank()
-
-            if event.type == pygame.KEYDOWN:
-                self._check_keydown_events(event)
-
-    def _check_keydown_events(self, event):
-        # 显示当前各种状态，调试用
-        if event.key == pygame.K_F1:
-            for tank in self.playerGroup:
-                tank.print()
-
-        if event.key == pygame.K_F2:
-            self.set_volume(self.all_sounds, 0)
-        if event.key == pygame.K_F3:
-            self.set_volume(self.all_sounds, 1)
-
-        if event.key == pygame.K_F4:
-            self.enemyCouldMove = False
-            pygame.time.set_timer(ENEMY_COULD_MOVE_EVENT, 8000, True)
-
-        if event.key == pygame.K_F5:
-            self.myTank[0].set_protect()
-
-        if event.key == pygame.K_c and pygame.KMOD_CTRL:
-            pygame.quit()
-            sys.exit()
-
-        if event.key == pygame.K_e:
-            self.myTank[0].levelUp()
-        if event.key == pygame.K_q:
-            self.myTank[0].levelDown()
-
-        if DEBUG:
-            if event.key == pygame.K_2:
-                if self.myTank[0].speed == 3:
-                    self.myTank[0].speed = 24
-                else:
-                    self.myTank[0].speed = 3
-            if event.key == pygame.K_3:
-                self.myTank[0].levelUp()
-                self.myTank[0].levelUp()
-                self.myTank[0].level = 3
-
-        if event.key == pygame.K_1:
-            self.bgMap.draw_homewall(1)
-        if event.key == pygame.K_4:
-            self.bgMap.draw_homewall(2)
-            pygame.time.set_timer(HOMEWALL_BRICK_EVENT, 20000, True)
-
-        if DEBUG:
-            # self.myTank[0].print()
-            pass
-
-    def _check_keypressed(self):
-        # 检查用户的键盘操作
-        key_pressed = pygame.key.get_pressed()
-        for i in range(2):
-            tank = self.myTank[i]
-            if tank.check_living() > 0:
-                dir = -1
-                if i == 0:
-                    if key_pressed[pygame.K_w]:
-                        dir = 0
-                    if key_pressed[pygame.K_s]:
-                        dir = 1
-                    if key_pressed[pygame.K_a]:
-                        dir = 2
-                    if key_pressed[pygame.K_d]:
-                        dir = 3
-                else:
-                    if key_pressed[pygame.K_UP]:
-                        dir = 0
-                    if key_pressed[pygame.K_DOWN]:
-                        dir = 1
-                    if key_pressed[pygame.K_LEFT]:
-                        dir = 2
-                    if key_pressed[pygame.K_RIGHT]:
-                        dir = 3
-                if not tank.moving and dir >= 0:
-                    tank.change_dir(dir)
-                    if tank.old_dir == tank.dir:
-                        tank.moving = 8
-                if tank.moving:
-                    tank.moving -= 1
-                    tank.move(self.objectGroups)
-                if key_pressed[pygame.K_j] and i == 0 or key_pressed[pygame.K_KP0] and i == 1:
-                    if not tank.bullet in self.bulletGroups[0] and tank.bulletNotCooling:
-                        self.fire_sound.play()
-                        tank.shoot()
-                        tank.bulletNotCooling = False
-
-    # 自定义事件（定时循环）
-    def user_loop_events(self):
-        # 创建敌方坦克延迟200
-        pygame.time.set_timer(DELAY_EVENT, 200)
-        # 创建敌方子弹延迟1000
-        pygame.time.set_timer(ENEMY_BULLET_COOLING_EVENT, 1000)
-        # 创建我方子弹延迟200
-        pygame.time.set_timer(MY_BULLET_COOLING_EVENT, 200)
-
 
 if __name__ == "__main__":
     try:
