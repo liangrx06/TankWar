@@ -1,3 +1,5 @@
+import random
+
 import pygame
 import sys
 import traceback
@@ -84,18 +86,25 @@ class TankWar():
                 self.myTank.append(Tank(self, side=1, kind=i + 1))
                 self.playerGroup.add(self.myTank[i])
         else:  # 创建敌方 坦克
-            for i in range(1, 4):
+            for i in range(3):
                 self.init_enemy_tank(i)
 
     def init_enemy_tank(self, enemy_pos=None):
+        if enemy_pos == None:
+            enemy_pos = random.choice(range(3))
+        flag_collide = False
+        for group in self.playerGroup, self.enemyGroup:
+            for tank in group:
+                if check_rect_inner(tank.appearing_rect[enemy_pos + 2], tank.rect):
+                    flag_collide = True
+                    break
+            if flag_collide == True:
+                break
+        if flag_collide:
+            return False
         enemy = Tank(self, side=2, enemy_pos=enemy_pos)
         self.enemyGroup.add(enemy)
-        if enemy.level == 3:
-            self.redEnemyGroup.add(enemy)
-        elif enemy.kind == 3:
-            self.greenEnemyGroup.add(enemy)
-        else:
-            self.otherEnemyGroup.add(enemy)
+        return True
 
     def init_images(self):
         self.background_image = pygame.image.load(r"..\image\background.png")
