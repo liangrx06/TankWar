@@ -134,7 +134,10 @@ class Tank(pygame.sprite.Sprite):
             self.life -= 1
             self.init_new_life()
         else:
-            self.level -= 1
+            if self.level == 3 and self.side == 2:
+                self.level = 0
+            else:
+                self.level -= 1
             self.init_by_level()
 
     def print(self):

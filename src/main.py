@@ -177,9 +177,9 @@ class TankWar():
                 if collisions:
                     bulletGroup.remove(bullet)
                 for tank in collisions:
+                    if tank.side == 2 and tank.level == 3:
+                        self.food.change()
                     tank.levelDown()
-                    if tank.side == 2:
-                        tank.print()
                     if tank.side == 2 and tank.life == 0:
                         self.tankGroups[1 - i].remove(tank)
                         del tank
