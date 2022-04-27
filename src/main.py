@@ -396,8 +396,10 @@ class TankWar():
             self.screen.blit(self.food.image, self.food.rect)
 
     def _draw_infoboard(self):
-        self.infoboard.print_info_background()
-        self.infoboard.print_enemy_tanks()
+        self.infoboard.draw_info_background()
+        self.infoboard.draw_enemy_tanks()
+        self.infoboard.draw_player_tanks()
+        self.infoboard.draw_level_info()
 
 if __name__ == "__main__":
     try:
