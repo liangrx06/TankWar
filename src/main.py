@@ -20,11 +20,14 @@ class TankWar():
         pygame.init()
         pygame.mixer.init()
 
-        self.screen = pygame.display.set_mode(RESOLUTION)
+        self.total_screen = pygame.display.set_mode(TOTAL_RESOLUTION)
+        self.total_rect = self.total_screen.get_rect()
+        self.screen = self.total_screen.subsurface((0, 0), RESOLUTION)
         self.rect = self.screen.get_rect()
+        self.info_screen = self.total_screen.subsurface((RESOLUTION[0], 0), INFO_RESOLUTION)
+        self.info_rect = self.info_screen.get_rect()
         pygame.display.set_caption("Tank War")
-        # 游戏窗口下鼠标不可见
-        pygame.mouse.set_visible(False)
+        pygame.mouse.set_visible(False) # 游戏窗口下鼠标不可见
 
         self.enemyCouldMove = True
         self.game_active = True
@@ -353,6 +356,7 @@ class TankWar():
         self._draw_tanks()
         self._draw_bullets()
         self._draw_food()
+        self._draw_infoboard()
         if self.game_active == False:
             self.infoboard.print_gameover()
         pygame.display.flip()
@@ -391,6 +395,9 @@ class TankWar():
         if self.food.life:
             self.screen.blit(self.food.image, self.food.rect)
 
+    def _draw_infoboard(self):
+        self.infoboard.print_info_background()
+        self.infoboard.print_enemy_tanks()
 
 if __name__ == "__main__":
     try:

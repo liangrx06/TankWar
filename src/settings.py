@@ -4,7 +4,10 @@ import pygame
 
 DEBUG = True
 
+# 分辨率
 RESOLUTION = (630, 630)
+INFO_RESOLUTION = (100, 630)
+TOTAL_RESOLUTION = (730, 630)
 
 # 自定义事件
 # 创建敌方坦克延迟200

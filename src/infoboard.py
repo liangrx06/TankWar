@@ -25,8 +25,8 @@ class Infoboard:
         self.game = game
 
         self.screen = game.screen
-        self.screen_width = self.screen.get_rect().width
-        self.screen_height = self.screen.get_rect().height
+        self.total_screen = game.total_screen
+        self.info_screen = game.info_screen
 
     def update(self):
         pass
@@ -38,6 +38,22 @@ class Infoboard:
         self.gameover_rect.center = self.screen.get_rect().center
         if self.game.time_tick // 20 % 2 == 0:
             self.screen.blit(self.gameover_image, self.gameover_rect)
+
+    def print_info_background(self):
+        self.info_bg_image = pygame.transform.scale(self.game.background_image, INFO_RESOLUTION)
+        self.info_screen.blit(self.info_bg_image, (0, 0))
+
+    def print_enemy_tanks(self):
+        image = pygame.image.load(r"..\image\enemy_1_0.png").convert_alpha()
+        image = image.subsurface((0, 0), (48, 48))
+        self.enemy_tank_image = pygame.transform.scale(image, (24, 24))
+        rect = self.enemy_tank_image.get_rect()
+        left_tanks = MAX_TOTAL_ENEMY_NUMBER - self.game.total_emeny_number + len(self.game.enemyGroup)
+        for i in range(left_tanks):
+            j = i // 2
+            k = i % 2
+            rect.x, rect.y = 24 + 24 * k, 48 + 24 * j
+            self.info_screen.blit(self.enemy_tank_image, rect)
 
     # def draw_chess_board(self):
     #     # 画棋盘网格线外的边框
