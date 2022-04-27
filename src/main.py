@@ -26,6 +26,11 @@ class TankWar():
         # 游戏窗口下鼠标不可见
         pygame.mouse.set_visible(False)
 
+        self.enemyCouldMove = True
+        self.game_active = True
+
+        self.total_emeny_number = 0
+
         self.clock = pygame.time.Clock()
         self.time_tick = 0
 
@@ -45,9 +50,6 @@ class TankWar():
 
         self.init_tank(side=1)
         self.init_tank(side=2)
-
-        self.enemyCouldMove = True
-        self.game_active = True
 
     def init_groups(self):
         """定义精灵组:我方、敌方的坦克和子弹"""
@@ -89,6 +91,8 @@ class TankWar():
                 self.init_enemy_tank(i)
 
     def init_enemy_tank(self, enemy_pos=None):
+        if self.total_emeny_number >= MAX_TOTAL_ENEMY_NUMBER or len(self.enemyGroup) >= MAX_ENEMY_NUMBER:
+            return False
         if enemy_pos == None:
             enemy_pos = random.choice(range(3))
         flag_collide = False
@@ -103,6 +107,7 @@ class TankWar():
             return False
         enemy = Tank(self, side=2, enemy_pos=enemy_pos)
         self.enemyGroup.add(enemy)
+        self.total_emeny_number += 1
         return True
 
     def init_images(self):
@@ -161,8 +166,7 @@ class TankWar():
                     self.bgMap.draw_homewall(1)
 
                 if event.type == DELAY_EVENT:  # 定时创建敌方坦克
-                    if len(self.enemyGroup) < MAX_ENEMY_NUMBER:
-                        self.init_enemy_tank()
+                    self.init_enemy_tank()
 
                 if event.type == pygame.KEYDOWN:
                     self._check_keydown_events(event)
