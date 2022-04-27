@@ -164,7 +164,7 @@ class Tank(pygame.sprite.Sprite):
         self.dir = dir
         self.images = [self.get_image(0), self.get_image(1)]
 
-    # 返回True 代表发生碰撞
+    # 返回True，代表发生碰撞
     def move(self):
         allGroup = pygame.sprite.Group()
         for group in self.game.playerGroup, self.game.enemyGroup, self.game.bgMap.brickGroup, self.game.bgMap.ironGroup:
