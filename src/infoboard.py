@@ -1,3 +1,5 @@
+# -*- coding:GBK -*-
+
 import pygame
 import pygame.gfxdraw
 import pygame.font

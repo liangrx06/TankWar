@@ -1,3 +1,5 @@
+# -*- coding:GBK -*-
+
 import pygame
 import random
 

@@ -1,3 +1,5 @@
+# -*- coding:GBK -*-
+
 import pygame
 import random
 from pygame import Rect
@@ -87,7 +89,6 @@ class Tank(pygame.sprite.Sprite):
         else:
             self.rect = self.appearing_rect[self.pos + 2]
 
-        # 坦克的四个等级，初始坦克为0级
         self.level = 0
         if self.side == 2:
             isred = random.choice((True, False, False, False, False)) # 参数:是否携带食物
@@ -96,7 +97,6 @@ class Tank(pygame.sprite.Sprite):
         self.init_by_level()
 
     def init_by_level(self):
-        # 坦克速度 图片 运动 子弹
         if self.side == 1:
             speeds = [3, 3, 3, 24]
             self.speed = speeds[self.level]
@@ -118,7 +118,6 @@ class Tank(pygame.sprite.Sprite):
 
     def init_moving(self):
         self.moving = False
-        # 运动中的两种图片
         self.level_images = self.all_levels_images[self.level]
         self.change_dir(self.dir)
 
@@ -164,8 +163,8 @@ class Tank(pygame.sprite.Sprite):
         self.dir = dir
         self.images = [self.get_image(0), self.get_image(1)]
 
-    # 返回True，代表发生碰撞
     def move(self):
+        """尝试移动，如果返回False，代表发生碰撞"""
         allGroup = pygame.sprite.Group()
         for group in self.game.playerGroup, self.game.enemyGroup, self.game.bgMap.brickGroup, self.game.bgMap.ironGroup:
             for object in group:
@@ -179,8 +178,8 @@ class Tank(pygame.sprite.Sprite):
             self.rect = self.rect.move(-self.speed * dir_x, -self.speed * dir_y)
             if self.side == 2:  # 随机改变方向
                 self.change_dir(random.choice(range(0, 4)))
-            return True
-        return False
+            return False
+        return True
 
         # dir_x, dir_y = DIRS[self.dir]
         # old_rect = self.rect
@@ -202,7 +201,6 @@ class Tank(pygame.sprite.Sprite):
         #     return False
         # return True
 
-
     def check_life(self):
         return self.life > 0
 
@@ -219,13 +217,13 @@ class Tank(pygame.sprite.Sprite):
         self.protect_time = protect_time
 
     def appearing_flash(self, screen):
-        # 播放坦克出现5毛钱特效
+        """播放坦克出现5毛钱特效"""
         if self.appearing_time > 0:
             self.appearing_time -= 1
             screen.blit(self.appearing[self.appearing_time // 10 % 3], self.rect)
 
     def protect_flash(self, screen):
-        # 播放坦克保护罩5毛钱特效
+        """播放坦克保护罩5毛钱特效"""
         if self.protect_time > 0:
             self.protect_time -= 1
             screen.blit(self.protect[self.protect_time // 10 % 2], self.rect)

@@ -1,3 +1,5 @@
+# -*- coding:GBK -*-
+
 import random
 
 import pygame
@@ -21,7 +23,7 @@ class TankWar():
         self.screen = pygame.display.set_mode(RESOLUTION)
         self.rect = self.screen.get_rect()
         pygame.display.set_caption("Tank War")
-        # æ¸¸æˆçª—å£ä¸‹é¼ æ ‡ä¸å¯è§
+        # ÓÎÏ·´°¿ÚÏÂÊó±ê²»¿É¼û
         pygame.mouse.set_visible(False)
 
         self.clock = pygame.time.Clock()
@@ -48,12 +50,9 @@ class TankWar():
         self.game_active = True
 
     def init_groups(self):
-        # å®šä¹‰ç²¾çµç»„:æˆ‘æ–¹å¦å…‹ï¼Œæ•Œæ–¹å¦å…‹ï¼Œæ•Œæ–¹å­å¼¹
+        """¶¨Òå¾«Áé×é:ÎÒ·½¡¢µĞ·½µÄÌ¹¿ËºÍ×Óµ¯"""
         self.playerGroup = pygame.sprite.Group()
         self.enemyGroup = pygame.sprite.Group()
-        self.redEnemyGroup = pygame.sprite.Group()
-        self.greenEnemyGroup = pygame.sprite.Group()
-        self.otherEnemyGroup = pygame.sprite.Group()
 
         self.playerBulletGroup = pygame.sprite.Group()
         self.enemyBulletGroup = pygame.sprite.Group()
@@ -62,30 +61,30 @@ class TankWar():
         self.bulletGroups = [self.playerBulletGroup, self.enemyBulletGroup]
 
     def init_bgmap(self):
-        # åˆ›å»ºåœ°å›¾
+        """´´½¨µØÍ¼"""
         self.bgMap = Wall(self)
 
         self.init_home()
 
     def init_home(self):
-        # åˆ›å»ºå®¶
+        """´´½¨¼Ò"""
         self.home = Home(self)
 
     def init_infoboard(self):
-        # åˆ›å»ºä¿¡æ¯æ¿
+        """´´½¨ĞÅÏ¢°å"""
         self.infoboard = Infoboard(self)
 
     def init_food(self):
-        # åˆ›å»ºé£Ÿç‰©/é“å…· ä½†ä¸æ˜¾ç¤º
+        """´´½¨Ê³Îï/µÀ¾ß µ«²»ÏÔÊ¾"""
         self.food = Food(self)
 
     def init_tank(self, side=1):
-        if side == 1:  # åˆ›å»ºæˆ‘æ–¹å¦å…‹
+        if side == 1:  # ´´½¨ÎÒ·½Ì¹¿Ë
             self.myTank = []
             for i in range(2):
                 self.myTank.append(Tank(self, side=1, kind=i + 1))
                 self.playerGroup.add(self.myTank[i])
-        else:  # åˆ›å»ºæ•Œæ–¹ å¦å…‹
+        else:  # ´´½¨µĞ·½ Ì¹¿Ë
             for i in range(3):
                 self.init_enemy_tank(i)
 
@@ -140,28 +139,28 @@ class TankWar():
 
     def _check_events(self):
         for event in pygame.event.get():
-            if event.type == pygame.QUIT:  # é€€å‡ºæ¸¸æˆ
+            if event.type == pygame.QUIT:  # ÍË³öÓÎÏ·
                 pygame.quit()
                 sys.exit()
 
             if self.game_active:
-                if event.type == MY_BULLET_COOLING_EVENT:  # æˆ‘æ–¹å­å¼¹å†·å´äº‹ä»¶
+                if event.type == MY_BULLET_COOLING_EVENT:  # ÎÒ·½×Óµ¯ÀäÈ´ÊÂ¼ş
                     for tank in self.playerGroup:
                         tank.bulletNotCooling = True
 
-                if event.type == ENEMY_BULLET_COOLING_EVENT:  # æ•Œæ–¹å­å¼¹å†·å´äº‹ä»¶
+                if event.type == ENEMY_BULLET_COOLING_EVENT:  # µĞ·½×Óµ¯ÀäÈ´ÊÂ¼ş
                     for each in self.enemyGroup:
                         each.bulletNotCooling = True
                         if self.enemyCouldMove and (not each.bullet in self.bulletGroups[1]):
                             each.shoot()
 
-                if event.type == ENEMY_COULD_MOVE_EVENT:  # æ•Œæ–¹å¦å…‹é™æ­¢äº‹ä»¶
+                if event.type == ENEMY_COULD_MOVE_EVENT:  # µĞ·½Ì¹¿Ë¾²Ö¹ÊÂ¼ş
                     self.enemyCouldMove = True
 
-                if event.type == HOMEWALL_BRICK_EVENT:  # å®¶å¢™æ¢å¤æˆç –å—20000
+                if event.type == HOMEWALL_BRICK_EVENT:  # ¼ÒÇ½»Ö¸´³É×©¿é20000
                     self.bgMap.draw_homewall(1)
 
-                if event.type == DELAY_EVENT:  # å®šæ—¶åˆ›å»ºæ•Œæ–¹å¦å…‹
+                if event.type == DELAY_EVENT:  # ¶¨Ê±´´½¨µĞ·½Ì¹¿Ë
                     if len(self.enemyGroup) < MAX_ENEMY_NUMBER:
                         self.init_enemy_tank()
 
@@ -171,23 +170,23 @@ class TankWar():
     def _check_keydown_events(self, event):
         if DEBUG:
             tank = self.myTank[0]
-            if event.key == pygame.K_F1:  # åƒç‚¸å¼¹ï¼Œæ•Œäººå…¨æ¯
+            if event.key == pygame.K_F1:  # ³ÔÕ¨µ¯£¬µĞÈËÈ«»Ù
                 for each in self.enemyGroup:
                     if pygame.sprite.spritecollide(each, self.enemyGroup, True, None):
                         self.bang_sound.play()
-            if event.key == pygame.K_F2:  # åƒå®šæ—¶ï¼Œæ•Œäººé™æ­¢
+            if event.key == pygame.K_F2:  # ³Ô¶¨Ê±£¬µĞÈË¾²Ö¹
                 self.enemyCouldMove = False
                 pygame.time.set_timer(ENEMY_COULD_MOVE_EVENT, 8000, True)
-            if event.key == pygame.K_F3:  # åƒæ‰‹æªï¼Œå­å¼¹å¢å¼ºï¼Œå˜èº«
+            if event.key == pygame.K_F3:  # ³ÔÊÖÇ¹£¬×Óµ¯ÔöÇ¿£¬±äÉí
                 tank.levelTo(2)
-            if event.key == pygame.K_F4:  # åƒå®¶ç›¾ï¼Œå®¶å¾—åˆ°ä¿æŠ¤ï¼ŒæŒç»­20ç§’
+            if event.key == pygame.K_F4:  # ³Ô¼Ò¶Ü£¬¼ÒµÃµ½±£»¤£¬³ÖĞø20Ãë
                 self.bgMap.draw_homewall(2)
                 pygame.time.set_timer(HOMEWALL_BRICK_EVENT, 20000, True)
-            if event.key == pygame.K_F5:  # åƒä¿æŠ¤å¸½ï¼Œå¦å…‹æ— æ•Œ
+            if event.key == pygame.K_F5:  # ³Ô±£»¤Ã±£¬Ì¹¿ËÎŞµĞ
                 tank.set_protect()
-            if event.key == pygame.K_F6:  # åƒäº”æ˜Ÿï¼Œå¦å…‹å‡çº§
+            if event.key == pygame.K_F6:  # ³ÔÎåĞÇ£¬Ì¹¿ËÉı¼¶
                 tank.levelUp()
-            if event.key == pygame.K_F7:  # åƒå¦å…‹ï¼Œå¦å…‹ç”Ÿå‘½+1
+            if event.key == pygame.K_F7:  # ³ÔÌ¹¿Ë£¬Ì¹¿ËÉúÃü+1
                 tank.life += 1
 
             if event.key == pygame.K_F8:
@@ -202,7 +201,7 @@ class TankWar():
                 tank.levelDown()
 
     def _check_keypressed(self):
-        # æ£€æŸ¥ç”¨æˆ·çš„é”®ç›˜æ“ä½œ
+        """¼ì²éÓÃ»§µÄ¼üÅÌ²Ù×÷"""
         key_pressed = pygame.key.get_pressed()
         for i in range(2):
             tank = self.myTank[i]
@@ -240,13 +239,13 @@ class TankWar():
                         tank.shoot()
                         tank.bulletNotCooling = False
 
-    # è‡ªå®šä¹‰äº‹ä»¶ï¼ˆå®šæ—¶å¾ªç¯ï¼‰
     def _user_loop_events(self):
-        # åˆ›å»ºæ•Œæ–¹å¦å…‹å»¶è¿Ÿ200
+        """×Ô¶¨ÒåÊÂ¼ş£¨¶¨Ê±Ñ­»·£©"""
+        # ´´½¨µĞ·½Ì¹¿ËÑÓ³Ù200
         pygame.time.set_timer(DELAY_EVENT, 200)
-        # åˆ›å»ºæ•Œæ–¹å­å¼¹å»¶è¿Ÿ1000
+        # ´´½¨µĞ·½×Óµ¯ÑÓ³Ù1000
         pygame.time.set_timer(ENEMY_BULLET_COOLING_EVENT, 1000)
-        # åˆ›å»ºæˆ‘æ–¹å­å¼¹å»¶è¿Ÿ200
+        # ´´½¨ÎÒ·½×Óµ¯ÑÓ³Ù200
         pygame.time.set_timer(MY_BULLET_COOLING_EVENT, 200)
 
     def _update_game(self):
@@ -255,7 +254,7 @@ class TankWar():
         self._update_food()
 
     def _update_tanks(self):
-        # ç”»æ‰€æœ‰å¦å…‹
+        """»­ËùÓĞÌ¹¿Ë"""
         for group in self.playerGroup, self.enemyGroup:
             for tank in group:
                 if tank.check_life():
@@ -275,10 +274,10 @@ class TankWar():
         for i in range(2):
             bulletGroup = self.bulletGroups[i]
             for bullet in bulletGroup:
-                # å­å¼¹ ç¢°æ’ brickGroup
+                # ×Óµ¯ Åö×² brickGroup
                 if pygame.sprite.spritecollide(bullet, self.bgMap.brickGroup, True, None):
                     bulletGroup.remove(bullet)
-                # å­å¼¹ ç¢°æ’ ironGroup
+                # ×Óµ¯ Åö×² ironGroup
                 if pygame.sprite.spritecollide(bullet, self.bgMap.ironGroup, bullet.strong, None):
                     bulletGroup.remove(bullet)
 
@@ -306,8 +305,6 @@ class TankWar():
                         if tank.side == 2 and tank.life == 0:
                             self.tankGroups[1 - i].remove(tank)
                             del tank
-        # pygame.sprite.groupcollide(self.bulletGroups[0], self.tankGroups[1], True, True)
-        # pygame.sprite.groupcollide(self.bulletGroups[1], self.tankGroups[0], True, True)
 
     def _update_bullets(self):
         for i in range(2):
@@ -323,28 +320,28 @@ class TankWar():
     def _update_food(self):
         if self.food.life:
             self.screen.blit(self.food.image, self.food.rect)
-            # æˆ‘æ–¹å¦å…‹ç¢°æ’ é£Ÿç‰©/é“å…·
+            # ÎÒ·½Ì¹¿ËÅö×² Ê³Îï/µÀ¾ß
             for tank in self.playerGroup:
                 if pygame.sprite.collide_rect(tank, self.food):
                     self.food.life = False
-                    if self.food.kind == 1:  # åƒç‚¸å¼¹ï¼Œæ•Œäººå…¨æ¯
+                    if self.food.kind == 1:  # ³ÔÕ¨µ¯£¬µĞÈËÈ«»Ù
                         for each in self.enemyGroup:
                             if pygame.sprite.spritecollide(each, self.enemyGroup, True, None):
                                 self.bang_sound.play()
-                    if self.food.kind == 2:  # åƒå®šæ—¶ï¼Œæ•Œäººé™æ­¢
+                    if self.food.kind == 2:  # ³Ô¶¨Ê±£¬µĞÈË¾²Ö¹
                         self.enemyCouldMove = False
                         pygame.time.set_timer(ENEMY_COULD_MOVE_EVENT, 8000, True)
-                    if self.food.kind == 3:  # åƒæ‰‹æªï¼Œå­å¼¹å¢å¼ºï¼Œå˜èº«
+                    if self.food.kind == 3:  # ³ÔÊÖÇ¹£¬×Óµ¯ÔöÇ¿£¬±äÉí
                         tank.levelTo(2)
-                    if self.food.kind == 4:  # åƒå®¶ç›¾ï¼Œå®¶å¾—åˆ°ä¿æŠ¤ï¼ŒæŒç»­20ç§’
+                    if self.food.kind == 4:  # ³Ô¼Ò¶Ü£¬¼ÒµÃµ½±£»¤£¬³ÖĞø20Ãë
                         self.bgMap.draw_homewall(2)
                         pygame.time.set_timer(HOMEWALL_BRICK_EVENT, 20000, True)
-                    if self.food.kind == 5:  # åƒä¿æŠ¤å¸½ï¼Œå¦å…‹æ— æ•Œ
+                    if self.food.kind == 5:  # ³Ô±£»¤Ã±£¬Ì¹¿ËÎŞµĞ
                         tank.set_protect()
                         pass
-                    if self.food.kind == 6:  # åƒäº”æ˜Ÿï¼Œå¦å…‹å‡çº§
+                    if self.food.kind == 6:  # ³ÔÎåĞÇ£¬Ì¹¿ËÉı¼¶
                         tank.levelUp()
-                    if self.food.kind == 7:  # åƒå¦å…‹ï¼Œå¦å…‹ç”Ÿå‘½+1
+                    if self.food.kind == 7:  # ³ÔÌ¹¿Ë£¬Ì¹¿ËÉúÃü+1
                         tank.life += 1
 
     def _update_screen(self):
@@ -357,21 +354,23 @@ class TankWar():
         pygame.display.flip()
 
     def _draw_bgmap(self):
-        # ç”»èƒŒæ™¯
+        """»­±³¾°"""
+        # »­±³¾°Í¼
         self.screen.blit(self.background_image, (0, 0))
-        # ç”»ç –å—
+        # »­×©¿é
         for each in self.bgMap.brickGroup:
             self.screen.blit(each.image, each.rect)
-        # ç”»çŸ³å¤´
+        # »­Ê¯Í·
         for each in self.bgMap.ironGroup:
             self.screen.blit(each.image, each.rect)
-        # ç”»home
+        # »­home
         if self.home.life:
             self.screen.blit(self.home.image, self.home.rect)
         else:
             self.screen.blit(self.home.image_destroyed, self.home.rect)
 
     def _draw_tanks(self):
+        """»­Ì¹¿Ë"""
         for group in self.playerGroup, self.enemyGroup:
             for tank in group:
                 if tank.life:
@@ -391,7 +390,6 @@ class TankWar():
 
 if __name__ == "__main__":
     try:
-        # main()
         tank_war = TankWar()
         tank_war.run_game()
     except SystemExit:

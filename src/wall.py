@@ -1,3 +1,5 @@
+# -*- coding:GBK -*-
+
 import pygame
 
 
@@ -24,17 +26,15 @@ class Home(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
 
         self.game = game
+        self.life = True
 
         homeImage = r"..\image\home.png"
-        home1Image = r"..\image\home1.png"
+        homeImage1 = r"..\image\home1.png"
         homeDestroyedImage = r"..\image\home_destroyed.png"
-        self.image = pygame.image.load(homeImage)
+        self.image = pygame.image.load(homeImage1)
         self.image_destroyed = pygame.image.load(homeDestroyedImage)
         self.rect = self.image.get_rect()
         self.rect.left, self.rect.top = (3 + 12 * 24, 3 + 24 * 24)
-
-        self.life = True
-
 
 class Wall():
     def __init__(self, game):
@@ -45,16 +45,16 @@ class Wall():
         self.ironGroup  = pygame.sprite.Group()
         self.wallGroups = [self.homewallGroup, self.brickGroup, self.ironGroup]
         
-        # 鏁板瓧浠ｈ〃鍦板浘涓殑浣嶇疆
+        # 数字代表地图中的位置
         # home
         self.homewall = [([11, 14], [23, 24, 25]), ([12, 13], [23])]
-        # 鍏朵粬鐮栧潡
+        # 其他砖块brick
         XY1379 = ([2, 3, 6, 7, 18, 19, 22, 23], [2, 3, 4, 5, 6, 7, 8, 9, 10, 17, 18, 19, 20, 21, 22, 23])
         XY28 = ([10, 11, 14, 15], [2, 3, 4, 5, 6, 7, 8, 11, 12, 15, 16, 17, 18, 19, 20])
         XY46 = ([4, 5, 6, 7, 18, 19, 20, 21], [13, 14])
         XY5  = ([12, 13], [16, 17])
         self.other_bricks = [XY1379, XY28, XY46, XY5]
-        # 鐭冲ご
+        # 石头iron
         self.irons = [([0, 1, 24, 25], [14]), ([12, 13], [6, 7])]
 
         self.draw_wall()
@@ -80,7 +80,7 @@ class Wall():
                 for y in XY[1]:
                     if walltype == 1:
                         wall = Brick()
-                    elif walltype == 2:
+                    else:
                         wall = Iron()
                     wall.rect.left, wall.rect.top = 3 + x * 24, 3 + y * 24
                     for wall_group in groups:
