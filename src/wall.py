@@ -22,10 +22,9 @@ class Iron(pygame.sprite.Sprite):
 
 
 class Home(pygame.sprite.Sprite):
-    def __init__(self, game):
+    def __init__(self):
         pygame.sprite.Sprite.__init__(self)
 
-        self.game = game
         self.life = True
 
         homeImage = r"..\image\home.png"
@@ -39,14 +38,17 @@ class Home(pygame.sprite.Sprite):
 class Wall():
     def __init__(self, game):
         self.game = game
+        self.screen = game.screen
 
-        self.homewallGroup  = pygame.sprite.Group()
+        self.homeGroup = pygame.sprite.Group()
+        self.homewallGroup = pygame.sprite.Group()
         self.brickGroup = pygame.sprite.Group()
-        self.ironGroup  = pygame.sprite.Group()
-        self.wallGroups = [self.homewallGroup, self.brickGroup, self.ironGroup]
+        self.ironGroup = pygame.sprite.Group()
+        self.wallGroups = [self.homeGroup, self.homewallGroup, self.brickGroup, self.ironGroup]
         
         # 数字代表地图中的位置
         # home
+        # homewall
         self.homewall = [([11, 14], [23, 24, 25]), ([12, 13], [23])]
         # 其他砖块brick
         XY1379 = ([2, 3, 6, 7, 18, 19, 22, 23], [2, 3, 4, 5, 6, 7, 8, 9, 10, 17, 18, 19, 20, 21, 22, 23])
@@ -57,24 +59,29 @@ class Wall():
         # 石头iron
         self.irons = [([0, 1, 24, 25], [14]), ([12, 13], [6, 7])]
 
-        self.draw_wall()
+        self.init_all_wall()
 
-    def draw_wall(self):
-        self.draw_homewall(1)
-        self.draw(1, [self.brickGroup], self.other_bricks)
-        self.draw(2, [self.ironGroup], self.irons)
+    def init_all_wall(self):
+        self.init_home()
+        self.init_homewall(1)
+        self.init_by_walltype(1, [self.brickGroup], self.other_bricks)
+        self.init_by_walltype(2, [self.ironGroup], self.irons)
 
-    def draw_homewall(self, walltype = 1):
+    def init_home(self):
+        self.home = Home()
+        self.homeGroup.add(self.home)
+
+    def init_homewall(self, walltype = 1):
         for wall in self.homewallGroup.copy():
             for wall_group in self.wallGroups:
                 if wall in wall_group:
                     wall_group.remove(wall)
         if walltype == 1:
-            self.draw(1, [self.brickGroup, self.homewallGroup], self.homewall)
+            self.init_by_walltype(1, [self.brickGroup, self.homewallGroup], self.homewall)
         elif walltype == 2:
-            self.draw(2, [self.ironGroup, self.homewallGroup], self.homewall)
+            self.init_by_walltype(2, [self.ironGroup, self.homewallGroup], self.homewall)
 
-    def draw(self, walltype, groups, locations):
+    def init_by_walltype(self, walltype, groups, locations):
         for XY in locations:
             for x in XY[0]:
                 for y in XY[1]:
@@ -85,6 +92,19 @@ class Wall():
                     wall.rect.left, wall.rect.top = 3 + x * 24, 3 + y * 24
                     for wall_group in groups:
                         wall_group.add(wall)
+
+    def draw(self):
+        # 画砖块
+        for each in self.brickGroup:
+            self.screen.blit(each.image, each.rect)
+        # 画石头
+        for each in self.ironGroup:
+            self.screen.blit(each.image, each.rect)
+        # 画home
+        if self.home.life:
+            self.screen.blit(self.home.image, self.home.rect)
+        else:
+            self.screen.blit(self.home.image_destroyed, self.home.rect)
 
             
         

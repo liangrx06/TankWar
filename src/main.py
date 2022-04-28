@@ -6,7 +6,7 @@ import pygame
 import sys
 import traceback
 
-from wall import Wall, Home
+from wall import Wall
 from infoboard import Infoboard
 from tank import Tank
 from bullet import Bullet
@@ -45,7 +45,7 @@ class TankWar():
 
         self.init_groups()
 
-        self.init_bgmap()
+        self.init_wall()
 
         self.init_infoboard()
 
@@ -65,15 +65,9 @@ class TankWar():
         self.tankGroups = [self.playerGroup, self.enemyGroup]
         self.bulletGroups = [self.playerBulletGroup, self.enemyBulletGroup]
 
-    def init_bgmap(self):
+    def init_wall(self):
         """创建地图"""
-        self.bgMap = Wall(self)
-
-        self.init_home()
-
-    def init_home(self):
-        """创建家"""
-        self.home = Home(self)
+        self.wall = Wall(self)
 
     def init_infoboard(self):
         """创建信息板"""
@@ -141,7 +135,7 @@ class TankWar():
             self.clock.tick(60)
 
     def _check_game_active(self):
-        if self.home.life == False or (self.myTank[0].life == 0 and self.myTank[1].life == 0):
+        if self.wall.home.life == False or (self.myTank[0].life == 0 and self.myTank[1].life == 0):
             self.game_active = False
         return self.game_active
 
@@ -166,7 +160,7 @@ class TankWar():
                     self.enemyCouldMove = True
 
                 if event.type == HOMEWALL_BRICK_EVENT:  # 家墙恢复成砖块20000
-                    self.bgMap.draw_homewall(1)
+                    self.wall.draw_homewall(1)
 
                 if event.type == DELAY_EVENT:  # 定时创建敌方坦克
                     self.init_enemy_tank()
@@ -187,7 +181,7 @@ class TankWar():
             if event.key == pygame.K_F3:  # 吃手枪，子弹增强，变身
                 tank.levelTo(2)
             if event.key == pygame.K_F4:  # 吃家盾，家得到保护，持续20秒
-                self.bgMap.draw_homewall(2)
+                self.wall.draw_homewall(2)
                 pygame.time.set_timer(HOMEWALL_BRICK_EVENT, 20000, True)
             if event.key == pygame.K_F5:  # 吃保护帽，坦克无敌
                 tank.set_protect()
@@ -283,17 +277,15 @@ class TankWar():
             bulletGroup = self.bulletGroups[i]
             for bullet in bulletGroup:
                 # 子弹 碰撞 brickGroup
-                if pygame.sprite.spritecollide(bullet, self.bgMap.brickGroup, True, None):
+                if pygame.sprite.spritecollide(bullet, self.wall.homeGroup, False, None):
+                    self.wall.home.life = False
+                    bulletGroup.remove(bullet)
+                # 子弹 碰撞 brickGroup
+                if pygame.sprite.spritecollide(bullet, self.wall.brickGroup, True, None):
                     bulletGroup.remove(bullet)
                 # 子弹 碰撞 ironGroup
-                if pygame.sprite.spritecollide(bullet, self.bgMap.ironGroup, bullet.strong, None):
+                if pygame.sprite.spritecollide(bullet, self.wall.ironGroup, bullet.strong, None):
                     bulletGroup.remove(bullet)
-
-    def _check_bullets_collide_home(self):
-        for i in range(2):
-            bulletGroup = self.bulletGroups[i]
-            if pygame.sprite.spritecollide(self.home, self.bulletGroups[i], True, None):
-                self.home.life = False
 
     def _check_bullets_collide_bullets(self):
         pygame.sprite.groupcollide(self.bulletGroups[0], self.bulletGroups[1], True, True)
@@ -321,7 +313,6 @@ class TankWar():
                 bullet.move()
         self._check_bullets_beyond_screen()
         self._check_bullets_collide_wall()
-        self._check_bullets_collide_home()
         self._check_bullets_collide_bullets()
         self._check_bullets_collide_tanks()
 
@@ -342,7 +333,7 @@ class TankWar():
                     if self.food.kind == 3:  # 吃手枪，子弹增强，变身
                         tank.levelTo(2)
                     if self.food.kind == 4:  # 吃家盾，家得到保护，持续20秒
-                        self.bgMap.draw_homewall(2)
+                        self.wall.draw_homewall(2)
                         pygame.time.set_timer(HOMEWALL_BRICK_EVENT, 20000, True)
                     if self.food.kind == 5:  # 吃保护帽，坦克无敌
                         tank.set_protect()
@@ -354,6 +345,7 @@ class TankWar():
 
     def _update_screen(self):
         self._draw_bgmap()
+        self._draw_wall()
         self._draw_tanks()
         self._draw_bullets()
         self._draw_food()
@@ -366,17 +358,11 @@ class TankWar():
         """画背景"""
         # 画背景图
         self.screen.blit(self.background_image, (0, 0))
-        # 画砖块
-        for each in self.bgMap.brickGroup:
-            self.screen.blit(each.image, each.rect)
-        # 画石头
-        for each in self.bgMap.ironGroup:
-            self.screen.blit(each.image, each.rect)
-        # 画home
-        if self.home.life:
-            self.screen.blit(self.home.image, self.home.rect)
-        else:
-            self.screen.blit(self.home.image_destroyed, self.home.rect)
+
+    def _draw_wall(self):
+        """画墙和家"""
+        # 画home 砖块 石头
+        self.wall.draw()
 
     def _draw_tanks(self):
         """画坦克"""

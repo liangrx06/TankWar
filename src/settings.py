@@ -22,7 +22,7 @@ ENEMY_COULD_MOVE_EVENT = pygame.constants.USEREVENT + 3
 HOMEWALL_BRICK_EVENT = pygame.constants.USEREVENT + 4
 
 MAX_ENEMY_NUMBER = 5
-MAX_TOTAL_ENEMY_NUMBER = 200
+MAX_TOTAL_ENEMY_NUMBER = 20
 
 DIRS = ((0, -1), (0, 1), (-1, 0), (1, 0))  # 移动方向：上下左右
 

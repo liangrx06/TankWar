@@ -166,7 +166,7 @@ class Tank(pygame.sprite.Sprite):
     def move(self):
         """尝试移动，如果返回False，代表发生碰撞"""
         allGroup = pygame.sprite.Group()
-        for group in self.game.playerGroup, self.game.enemyGroup, self.game.bgMap.brickGroup, self.game.bgMap.ironGroup:
+        for group in self.game.playerGroup, self.game.enemyGroup, self.game.wall.brickGroup, self.game.wall.ironGroup:
             for object in group:
                 allGroup.add(object)
         allGroup.remove(self)
@@ -190,7 +190,7 @@ class Tank(pygame.sprite.Sprite):
         #     for tank in group:
         #         #if tank.check_living():
         #         allGroup.add(tank)
-        # for group in self.game.bgMap.brickGroup, self.game.bgMap.ironGroup:
+        # for group in self.game.wall.brickGroup, self.game.wall.ironGroup:
         #     for object in group:
         #         allGroup.add(object)
         # allGroup.remove(self)
