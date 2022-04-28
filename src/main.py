@@ -160,7 +160,7 @@ class TankWar():
                     self.enemyCouldMove = True
 
                 if event.type == HOMEWALL_BRICK_EVENT:  # 家墙恢复成砖块20000
-                    self.wall.draw_homewall(1)
+                    self.wall.init_homewall(1)
 
                 if event.type == DELAY_EVENT:  # 定时创建敌方坦克
                     self.init_enemy_tank()
@@ -181,7 +181,7 @@ class TankWar():
             if event.key == pygame.K_F3:  # 吃手枪，子弹增强，变身
                 tank.levelTo(2)
             if event.key == pygame.K_F4:  # 吃家盾，家得到保护，持续20秒
-                self.wall.draw_homewall(2)
+                self.wall.init_homewall(2)
                 pygame.time.set_timer(HOMEWALL_BRICK_EVENT, 20000, True)
             if event.key == pygame.K_F5:  # 吃保护帽，坦克无敌
                 tank.set_protect()
@@ -333,7 +333,7 @@ class TankWar():
                     if self.food.kind == 3:  # 吃手枪，子弹增强，变身
                         tank.levelTo(2)
                     if self.food.kind == 4:  # 吃家盾，家得到保护，持续20秒
-                        self.wall.draw_homewall(2)
+                        self.wall.init_homewall(2)
                         pygame.time.set_timer(HOMEWALL_BRICK_EVENT, 20000, True)
                     if self.food.kind == 5:  # 吃保护帽，坦克无敌
                         tank.set_protect()
