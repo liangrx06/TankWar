@@ -34,18 +34,19 @@ class Bullet(pygame.sprite.Sprite):
 
     def changeLocation(self, dir):
         self.dir = dir
-        if self.dir == 0:
-            self.rect.left = self.tank.rect.left + 18
-            self.rect.bottom = self.tank.rect.top + 1
-        elif self.dir == 1:
-            self.rect.left = self.tank.rect.left + 18
-            self.rect.top = self.tank.rect.bottom - 1
-        elif self.dir == 2:
-            self.rect.right = self.tank.rect.left - 1
-            self.rect.top = self.tank.rect.top + 18
-        elif self.dir == 3:
-            self.rect.left = self.tank.rect.right + 1
-            self.rect.top = self.tank.rect.top + 18
+        self.rect.center = self.tank.rect.center
+        # if self.dir == 0:
+        #     self.rect.left = self.tank.rect.left + 18
+        #     self.rect.bottom = self.tank.rect.top + 1
+        # elif self.dir == 1:
+        #     self.rect.left = self.tank.rect.left + 18
+        #     self.rect.top = self.tank.rect.bottom - 1
+        # elif self.dir == 2:
+        #     self.rect.right = self.tank.rect.left - 1
+        #     self.rect.top = self.tank.rect.top + 18
+        # elif self.dir == 3:
+        #     self.rect.left = self.tank.rect.right + 1
+        #     self.rect.top = self.tank.rect.top + 18
     
     def move(self):
         dir_x, dir_y = DIRS[self.dir]

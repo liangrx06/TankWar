@@ -207,13 +207,16 @@ class Tank(pygame.sprite.Sprite):
     def check_living(self):
         return self.appearing_time == 0
 
+    def check_can_be_attacked(self):
+        return self.protect_time == 0 and self.appearing_time == 0
+
     def check_appearing(self):
         return self.appearing_time > 0
 
     def check_protect(self):
         return self.protect_time > 0
 
-    def set_protect(self, protect_time=600):
+    def set_protect(self, protect_time = 600):
         self.protect_time = protect_time
 
     def appearing_flash(self, screen):

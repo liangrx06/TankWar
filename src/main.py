@@ -195,6 +195,7 @@ class TankWar():
                 tank.levelUp()
             if event.key == pygame.K_F7:  # ³ÔÌ¹¿Ë£¬Ì¹¿ËÉúÃü+1
                 tank.life += 1
+                self.myTank[1].life += 1
 
             if event.key == pygame.K_F8:
                 tank.print()
@@ -305,7 +306,7 @@ class TankWar():
                 if collisions:
                     bulletGroup.remove(bullet)
                 for tank in collisions:
-                    if tank.protect_time == 0:
+                    if tank.check_can_be_attacked():
                         if tank.side == 2 and tank.level == 3:
                             self.food.change()
                         tank.levelDown()
